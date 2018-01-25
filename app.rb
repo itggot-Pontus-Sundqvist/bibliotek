@@ -22,7 +22,6 @@ class App < Sinatra::Base
 		db = SQLite3::Database::new("./database/db.db")
 		books = db.execute("SELECT * FROM books WHERE genre_id=?", genre_id)
 		books.each do |book|
-			book[-1] = get_genre(book[-1])
 			book << get_author(book[0])
 		end
 		books
@@ -66,6 +65,22 @@ class App < Sinatra::Base
 			genre << get_books_by_genre(genre[0])
 		end
 		slim(:genre_list, locals: { genres:genres })
+	end
+
+	get '/book/:id/?' do
+		db = SQLite3::Database::new("./database/db.db")
+		books = db.execute("SELECT * FROM books WHERE id=?", params[:id])
+		book = books[0]
+		book[-1] = get_genre(book[-1])
+		book << get_author(book[0])
+		slim(:single_book, locals: { book:book })
+	end
+
+	get '/random_book/?' do
+		db = SQLite3::Database::new("./database/db.db")
+		book_ids = db.execute("SELECT id FROM books")
+		choise = book_ids.sample[0]
+		redirect("/book/#{choise}")
 	end
 
 	post '/new_user' do
