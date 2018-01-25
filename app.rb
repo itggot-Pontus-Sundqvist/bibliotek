@@ -11,7 +11,6 @@ class App < Sinatra::Base
 		books = db.execute("SELECT name FROM authors WHERE id IN (SELECT author_id FROM 'authors-books-relations' WHERE book_id=?)", book_id)
 		p books
 	end
-	fdfdfdf
 
 	enable:sessions
 
