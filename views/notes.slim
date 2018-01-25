@@ -1,0 +1,14 @@
+a href="/" Go back
+h1 NOTES
+div.notes-container
+    -notes.each do |note|
+        div.note-box
+            h2 = note[1]
+            form action="/delete_note/#{note[0]}" method="post"
+                input type="submit" value="Delete note"
+            form action="/edit_note/#{note[0]}" method="get"
+                input type="submit" value="Edit note"
+
+form action="/new_note" method="post"
+    input type="text" name="text" placeholder="Write note here"
+    input type="submit" value="Create new note"

@@ -1,0 +1,47 @@
+.error {
+    display: inline-block;
+    color: red;
+    background-color: black;
+}
+
+body {
+    display: flex;
+    background-color: hotpink;
+    justify-content: center;
+    width: 100%;
+}
+
+main {
+    max-width: 80%;
+    padding: 10px;
+    background-color: greenyellow;
+    border: 2px dotted blanchedalmond;
+}
+
+.notes-container {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    max-width: 100%;
+}
+
+h2 {
+    word-wrap: break-word;
+    white-space: normal;
+}
+
+.note-box {
+    color: white;
+    background-color: darkgreen;
+    max-width: 90%;
+    word-wrap: break-word;
+    margin: 5px;
+    padding: 10px;
+    border: 2px solid black;
+}
+
+input[type="submit"] { 
+    color:blueviolet;
+    background-color:whitesmoke; 
+    border:1px solid;
+} 
