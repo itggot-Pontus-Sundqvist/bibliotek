@@ -8,8 +8,14 @@ class App < Sinatra::Base
 
 	def get_author(book_id)
 		db = SQLite3::Database::new("./database/db.db")
-		books = db.execute("SELECT name FROM authors WHERE id IN (SELECT author_id FROM 'authors-books-relations' WHERE book_id=?)", book_id)
-		p books
+		names = db.execute("SELECT name FROM authors WHERE id IN (SELECT author_id FROM 'authors-books-relations' WHERE book_id=?)", book_id)
+		names.flatten!
+	end
+
+	def get_genre(genre_id)
+		db = SQLite3::Database::new("./database/db.db")
+		names = db.execute("SELECT name FROM genres WHERE id=?", genre_id)
+		names[0][0]
 	end
 
 	enable:sessions
@@ -32,8 +38,11 @@ class App < Sinatra::Base
 	get '/all_books/?' do
 		db = SQLite3::Database::new("./database/db.db")
 		books = db.execute("SELECT * FROM books")
-		get_author(15)
-		"nice"
+		books.each do |book|
+			book[-1] = get_genre(book[-1])
+			book << get_author(book[0])
+		end
+		slim(:all_books, locals:{ books: books })
 	end
 
 	post '/new_user' do
