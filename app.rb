@@ -18,12 +18,31 @@ class App < Sinatra::Base
 		names[0][0]
 	end
 
+	def get_books_by_genre(genre_id)
+		db = SQLite3::Database::new("./database/db.db")
+		books = db.execute("SELECT * FROM books WHERE genre_id=?", genre_id)
+		books.each do |book|
+			book[-1] = get_genre(book[-1])
+			book << get_author(book[0])
+		end
+		books
+	end
+
+	def get_all_book_info
+		db = SQLite3::Database::new("./database/db.db")
+		books = db.execute("SELECT * FROM books")
+		books.each do |book|
+			book[-1] = get_genre(book[-1])
+			book << get_author(book[0])
+		end
+		books
+	end
 	enable:sessions
 
-	# 404
-	not_found do
-		redirect('/')
-	end
+	# # 404
+	# not_found do
+	# 	redirect('/')
+	# end
 
 	get '/' do
 		slim(:index)
@@ -36,13 +55,17 @@ class App < Sinatra::Base
 	
 
 	get '/all_books/?' do
+		books = get_all_book_info()
+		slim(:all_books, locals: { books: books })
+	end
+
+	get '/genre_list/?' do
 		db = SQLite3::Database::new("./database/db.db")
-		books = db.execute("SELECT * FROM books")
-		books.each do |book|
-			book[-1] = get_genre(book[-1])
-			book << get_author(book[0])
+		genres = db.execute("SELECT * FROM genres")
+		genres.each do |genre|
+			genre << get_books_by_genre(genre[0])
 		end
-		slim(:all_books, locals:{ books: books })
+		slim(:genre_list, locals: { genres:genres })
 	end
 
 	post '/new_user' do

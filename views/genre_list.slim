@@ -1,0 +1,9 @@
+h1 Genres
+-genres.each do |genre|
+    div.genre_container
+        h1 = genre[1]
+        - genre[2].each do |book|
+            div.book_container
+                h2 = book[1]
+                p = book[4].join(", ")
+                p Available #{book[2]}
