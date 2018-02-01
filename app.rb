@@ -72,6 +72,27 @@ class App < Sinatra::Base
 		end
 	end
 
+	def get_all_loans()
+		db = SQLite3::Database::new("./database/db.db")
+		user = session[:user_id]
+		if user
+			user_loans = db.execute("SELECT book_id FROM loans WHERE user_id = ?", user)
+			return user_loans
+		else
+			return nil
+		end
+	end
+
+	def get_book(book_id)
+		db = SQLite3::Database::new("./database/db.db")
+		book_data = db.execute("SELECT * FROM books WHERE id = ?", book_id)
+		book_data = book_data[0]
+		book_info = { id: book_data[0], name: book_data[1]}
+		book_info[:genre] = get_genre(book_data[3])
+		book_info[:authors] = get_author(book_data[0])
+		book_info
+	end
+
 	enable:sessions
 
 	# # 404
@@ -90,6 +111,7 @@ class App < Sinatra::Base
 	
 
 	get '/all_books/?' do
+		remove_old_loans
 		books = get_all_book_info()
 		slim(:all_books, locals: { books: books })
 	end
@@ -125,6 +147,15 @@ class App < Sinatra::Base
 			redirect("/book/#{id}")
 		else
 			"Failed"
+		end
+	end
+
+	get '/my_books/?' do
+		loans = get_all_loans()
+		if loans
+			slim(:my_books, locals:{ loans: loans })
+		else
+			redirect('/')
 		end
 	end
 
