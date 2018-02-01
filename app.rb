@@ -36,6 +36,42 @@ class App < Sinatra::Base
 		end
 		books
 	end
+
+	def loan_possible(book_id)
+		remove_old_loans
+		db = SQLite3::Database::new("./database/db.db")
+		user_id = session[:user_id]
+		if user_id
+			loans = db.execute("SELECT * FROM loans WHERE user_id=? AND book_id=?", [user_id, book_id])
+			available_books = db.execute("SELECT available FROM books WHERE id=?", book_id)
+			if loans.empty? && available_books[0][0] > 0
+				return true
+			end
+		end
+		false
+	end
+
+	def new_loan(book_id)
+		db = SQLite3::Database::new("./database/db.db")
+		if loan_possible(book_id)
+			db.execute("UPDATE books SET available = available - 1 WHERE id = ?", book_id)
+			db.execute("INSERT INTO loans VALUES (?, ?, ?)", [session[:user_id], book_id, Time.now.to_i + 20])
+			true
+		else
+			false
+		end
+	end
+
+	def remove_old_loans
+		db = SQLite3::Database::new("./database/db.db")
+		time = Time.now.to_i
+		old_loans = db.execute("SELECT book_id FROM loans WHERE loan_time < ?", time)
+		db.execute("DELETE FROM loans WHERE loan_time < ? ", time)
+		old_loans.each do |loan|
+			db.execute("UPDATE books SET available = available + 1 WHERE id = ?", loan[0])
+		end
+	end
+
 	enable:sessions
 
 	# # 404
@@ -83,6 +119,15 @@ class App < Sinatra::Base
 		redirect("/book/#{choise}")
 	end
 
+	get '/loan/:id/?' do
+		id = params[:id]
+		if new_loan(id)
+			redirect("/book/#{id}")
+		else
+			"Failed"
+		end
+	end
+
 	post '/new_user' do
 		new_name = params[:name]
 		new_password = params[:password]
@@ -112,7 +157,7 @@ class App < Sinatra::Base
 		real_password = db.execute("SELECT password FROM users WHERE name=?", name)
 		if real_password != [] && BCrypt::Password.new(real_password[0][0]) == password
 			session[:user_id] = db.execute("SELECT id FROM users WHERE name=?", name)[0][0]
-			redirect('/notes')
+			redirect('/all_books')
 		else
 			session[:failure] = "Login failed"
 			redirect('/index')
