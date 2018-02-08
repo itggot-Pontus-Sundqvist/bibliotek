@@ -3,6 +3,7 @@ h1 books
     div.book_container
         a href="/book/#{book[0]}"
             h2 = book[1]
+        img src="/img/#{book[1]}.jpg" height="400" width="auto"
         h3 = book[3]
         p = book[4].join(", ")
         p Available #{book[2]}
