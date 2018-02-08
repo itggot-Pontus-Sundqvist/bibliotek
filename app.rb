@@ -191,7 +191,7 @@ class App < Sinatra::Base
 			redirect('/all_books')
 		else
 			session[:failure] = "Login failed"
-			redirect('/index')
+			redirect('/')
 		end
 	end
 end
