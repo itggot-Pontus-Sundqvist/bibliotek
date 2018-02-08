@@ -127,10 +127,11 @@ class App < Sinatra::Base
 
 	get '/book/:id/?' do
 		db = SQLite3::Database::new("./database/db.db")
+		db.results_as_hash = true
 		books = db.execute("SELECT * FROM books WHERE id=?", params[:id])
 		book = books[0]
-		book[-1] = get_genre(book[-1])
-		book << get_author(book[0])
+		book["genre"] = get_genre(book["genre_id"])
+		book["authors"] = get_author(book["id"])
 		slim(:single_book, locals: { book:book })
 	end
 
@@ -180,7 +181,6 @@ class App < Sinatra::Base
 		end
 	end
 
-	# Använd '/' för att URL:en inte ska ändras när inloggningen misslyckas.
 	post '/login' do
 		name = params[:name]
 		password = params[:password]

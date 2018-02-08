@@ -1,7 +1,7 @@
-h1 = book[1]
-h2 = book[3]
-h2 = book[4].join(", ")
-h3 Available #{book[2]}
+h1 = book["name"]
+h2 = book["genre"]
+h2 = book["authors"].join(", ")
+h3 Available #{book["available"]}
 img src="/img/#{book[1]}.jpg" height="400" width="auto"
 - if loan_possible(book[0])
     a href="/loan/#{book[0]}" Låna
